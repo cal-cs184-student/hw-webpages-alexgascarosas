@@ -392,7 +392,58 @@
 		</div>
 
 		<h2>Task 3: Transforms</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+			I implemented <code>translate</code>, <code>scale</code>, and <code>rotate</code> in homogeneous 3×3 matrix form. 
+			These transforms compose naturally via matrix multiplication and apply to points
+			using the <code>*</code> operator for <code>Vector2D</code>.
+		</p>
+		<h3>My robot</h3>
+		<p>
+			I edited <code>robot.svg</code> to make the robot wave. I used hierarchical <code>&lt;g transform="..."&gt;</code> groups 
+			so that rotations affect entire limbs around a pivot. I also changed the colors of the torso, legs, head, and arms.
+		</p>
+
+		<figure>
+			<img src="hw1_3.png" alt="My robot.svg screenshot"/>
+			<figcaption>My robot.svg rendered image</figcaption>
+		</figure>
+
+		<h3>Extra Credit</h3>
+		<p>
+			I added a GUI feature that allows rotating the viewport using the <code>[</code> and <code>]</code> keys.
+			Pressing <code>[</code> rotates the view counterclockwise by a small fixed angle, and pressing <code>]</code>
+			rotates clockwise. This makes it easy to inspect aliasing/artifacts from different angles without modifying the SVG.
+		</p>
+		<p>
+			The rasterizer uses a matrix stack to transform geometry from SVG space into
+			Normalized Device Coordinates (NDC), and then from NDC into screen space.
+			To implement rotation, I introduced a <code>view_rotation</code> parameter
+			that is updated when <code>[</code>/<code>]</code> are pressed, and I inserted a rotation
+			matrix into the transform pipeline.
+  		</p>
+		<p>
+			I implemented viewport rotation by applying a 2D rotation around the center of the view in NDC space.
+			Since NDC is in a normalized coordinate frame, it is convenient to rotate about the origin; however, the visible
+			region is centered at <code>(0,0)</code> in NDC only if the SVG→NDC mapping is centered appropriately.
+			In my implementation, I rotated in NDC around the view center using a translate-rotate-translate pattern.
+		</p>
+
+		<h3>Images</h3>
+		<div class="grid">
+			<figure class="ph">
+			<div><strong>With rotation using [</strong></div>
+			<div style="margin-top: 8px;">
+				<img src="hw1_3_extrac1.png"/>
+			</div>
+			</figure>
+
+			<figure class="ph">
+			<div><strong>>With rotation using ]</strong></div>
+			<div style="margin-top: 8px;">
+				<img src="hw1_3_extrac2.png"/>
+			</div>
+			</figure>
+		</div>
 
 		<h2>Task 4: Barycentric coordinates</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
