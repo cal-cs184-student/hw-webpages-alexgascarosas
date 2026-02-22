@@ -261,8 +261,11 @@
 		<p>
 			Conceptually, all sub-samples for pixel <code>(x, y)</code> are stored contiguously:
 		</p>
-			<pre><code>base = (y * width + x) * sample_rate
-			sample_index = base + s   // s in [0, sample_rate)</code>
+			<pre>
+				<code>
+					base = (y * width + x) * sample_rate
+				    sample_index = base + s   // s in [0, sample_rate)
+			    </code>
 			</pre>
 
 		<p>
@@ -278,8 +281,12 @@
 			</li>
 			<li>
 				Then looped over each sub-sample <code>(i, j)</code> in an <code>sdim × sdim</code> grid and evaluate the point:
-				<pre><code>sx = x + (i + 0.5) / sdim
-				sy = y + (j + 0.5) / sdim</code></pre>
+				<pre>
+					<code>
+						sx = x + (i + 0.5) / sdim
+				        sy = y + (j + 0.5) / sdim
+					</code>
+				</pre>
 			</li>
 			<li>
 				Then I ran the same point-in-triangle test -edge functions / half-plane tests- at <code>(sx, sy)</code>.
@@ -292,7 +299,9 @@
 			primitives into <code>sample_buffer</code>, I computed the final framebuffer color by averaging
 			all sub-samples in each pixel:
 		<pre>
-			<code>C(x,y) = (1 / sample_rate) * sum_{s=0..sample_rate-1} C_s(x,y)</code>
+			<code>
+				C(x,y) = (1 / sample_rate) * sum_{s=0..sample_rate-1} C_s(x,y)
+			</code>
 		</pre>
 			This resolving step converts how many sub-samples were inside the triangle into smoother
 			pixel intensities.
@@ -340,6 +349,43 @@
 			<figcaption>sample rate 16</figcaption>
 		</figure>
 
+		<h3>Extra Credit</h3>
+		<p>  
+			In addition to standard grid-based supersampling, I implemented a
+			jittered sampling pattern. I replaced the fixed <code>0.5</code> offsets with randomized offsets. 
+			To keep results stable and to not have flickering across frames, the jitter is
+			deterministic so it produces the same jitter pattern every run while still breaking the regular grid structure.
+		</p>
+		<p>
+			The only change for the extra credit is the sampling pattern (grid centers vs jittered offsets). Uniform grid 
+			sampling is highly structured, so it can produce coherent aliasing artifacts when
+			triangle edges align with the grid (long diagonals, repeated thin triangles, near-parallel edges). In those cases,
+			the error can appear as repeating stair-step patterns vs Jittered sampling. As a result Jittered tends to be less 
+			structured (more noise-like) and is often less noticeable than repeating jagged edges.
+		</p>
+
+
+		<div class="grid">
+			<figure class="ph">
+			<div><strong>Grid supersampling (sample rate 1)</strong></div>
+			<div style="margin-top: 8px;">
+				<img src="hw1_2_ec_notjig.png" style="width:50%"/>
+			</div>
+			<figcaption>
+				Grid sampling can show faint repeating stair-step artifacts due to the periodic sampling lattice.
+			</figcaption>
+			</figure>
+
+			<figure class="ph">
+			<div><strong>Jittered supersampling (same sample rate)</strong></div>
+			<div style="margin-top: 8px;">
+				<img src="hw1_2_ec_jig.png" style="width:50%"/>
+			</div>
+			<figcaption>
+				Jitter reduces coherent patterns; edges typically look smoother with less structured aliasing.
+			</figcaption>
+			</figure>
+		</div>
 
 		<h2>Task 3: Transforms</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
