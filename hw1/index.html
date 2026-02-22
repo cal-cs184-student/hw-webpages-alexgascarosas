@@ -231,6 +231,18 @@
 		</table>
 
 		<br>
+
+		<p>For speed optimization I used incremental edge evaluation. Instead of recomputing
+        \(L_i(x,y)\) from scratch for every pixel, I computed the edge values once at the start of each scanline
+        and then incrementally updated them as x increases: \(L_i(x+1,y) = L_i(x,y) + A_i\). 
+		This optimization removed repeated multiplies from the inner loop and reduced redundant code.
+      	</p>
+
+      	<p>
+        To get how much faster the optimized code ran vs the basic one, I measured performance by timing <code>svg.draw(...)</code> inside <code>DrawRend::redraw()</code>
+        using the built in clock <code>std::chrono::high_resolution_clock</code>. I ran each version 10 times and took the average and found just by using incremental edge evalution my
+		overall performance increasd by a speed of 1.7, almost doubling the speed.
+
 		
 		<h2>Task 2: Antialiasing by Supersampling</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
