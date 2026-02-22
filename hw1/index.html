@@ -52,33 +52,24 @@
 		<h2>Overview</h2>
 		<p>
         For homework 1 I built a software rasterizer pipeline for Scalable Vector Graphics (SVGs). I implemented...
-		<p>
-        1. a single-color triangle rasterization using edge functions,
-		</p>
-		<p>
-        2. a supersampling antialiasing using a per-subsample buffer and resolve step,
-		</p>
-		<p>
-        3. SVG transforms - translate/scale/rotate - in homogeneous coordinates,
-		</p>
-		<p>
-        4. barycentric coordinates for smooth interpolated vertex colors,
-		</p>
-		</p>
-        5. texture mapping with nearest & bilinear pixel sampling, & 
-		</p>
-		<p>
-		6. a mipmapped level sampling - L_ZERO/L_NEAREST/L_LINEAR - including trilinear filtering.
-        </p>
+		<ol>
+			<li>a single-color triangle rasterization using edge functions,</li>
+			<li>a supersampling antialiasing using a per-subsample buffer and resolve step,</li>
+			<li>SVG transforms - translate/scale/rotate - in homogeneous coordinates,.</li>
+			<li>barycentric coordinates for smooth interpolated vertex colors,</li>
+			<li>texture mapping with nearest & bilinear pixel sampling, & </li>
+			<li>a mipmapped level sampling - L_ZERO/L_NEAREST/L_LINEAR - including trilinear filtering.</li>
+		</ol>
         <p>
         The most interesting takeaway was that everything is built from the same triangle backbone. It is cool and 
 		interesting to see that everything in homework 1 was ultimatley made from multiple single triangles.
+		</p>
 
 
-		<h2>Task 1: Drawing Single-Color Triangles</h2>
+		<h2>Task 1: Drawing Single-Color Triangles</h2> 
 		<h3>Algorithm</h3>
       	<p>
-			To rasterize a triangle, I first transform its three vertices into screen space. Once I have the 2D coordinates, 
+			To rasterize a triangle, I first transformed its three vertices into screen space. Once I had the 2D coordinates, 
 			I computed the triangle’s axis-aligned bounding box by taking the minimum and maximum x and y values among each vertex. 
 			
 			I then iterate over every pixel inside this bounding box. For each sample point, I determined whether it lies inside the 
@@ -93,7 +84,7 @@
 			The algorithm only checks samples inside the triangle’s bounding box. We let N be the number of samples inside the triangle's 
 			bounding box. Since the algorithm examines only samples within this bounding box and performs a constant-time inside-triangle test for
 			each sample, this would take constant time. Runtime is O(N). 
-
+ 
 			This is no worse than an algorithm that checks every sample within the bounding box, since both approaches iterate over the same set 
 			of candidate samples and perform constant work per sample.
 		</p>
@@ -103,8 +94,8 @@
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
-				<td style="text-align: center;  padding-bottom: 20px;">
-				  <img src="hw1_1_full.png" width="400px"/>
+				<td style="text-align: center;">
+				  <img src="hw1_1_full.png" width="500px"/>
 				  <figcaption>Screenshot #1: basic/test4.svg</figcaption>
 				  <figcaption>(default view, sample rate 1)</figcaption>
 				</td>
