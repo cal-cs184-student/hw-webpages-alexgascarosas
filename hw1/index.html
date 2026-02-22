@@ -38,20 +38,55 @@
 
 		Link to GitHub repository: (TODO) <a href="https://github.com/cal-cs184-student/hw-webpages-alexgascarosas">My Github</a>
 
-		<figure>
-			<img src="lion.jpg" alt="Lion" style="width:50%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
+		<!--
+			<figure>
+				<img src="lion.jpg" alt="Lion" style="width:50%"/>
+				<figcaption>You can add images with captions!</figcaption>
+			</figure>
+		-->
 
 		<!--
 		We've already added one heading per task, to make your write-up as navigable when grading. Please fit your write-up within these sections!
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+		<p>
+        For homework 1 I built a software rasterizer pipeline for Scalable Vector Graphics (SVGs). I implemented...
+        1. a single-color triangle rasterization using edge functions,
+        2. a supersampling antialiasing using a per-subsample buffer and resolve step,
+        3. SVG transforms - translate/scale/rotate - in homogeneous coordinates,
+        4. barycentric coordinates for smooth interpolated vertex colors,
+        5. texture mapping with nearest & bilinear pixel sampling, & 
+		6. a mipmapped level sampling - L_ZERO/L_NEAREST/L_LINEAR - including trilinear filtering.
+        </p>
+        <p>
+        The most interesting takeaway was that everything is built from the same triangle backbone. It is cool and 
+		interesting to see that everything in homework 1 was ultimatley made from multiple single triangles.
+
 
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<h3>Algorithm</h3>
+      	<p>
+			To rasterize a triangle, I first transform its three vertices into screen space. Once I have the 2D coordinates, 
+			I computed the triangle’s axis-aligned bounding box by taking the minimum and maximum x and y values among each vertex. 
+			
+			I then iterate over every pixel inside this bounding box. For each sample point, I determined whether it lies inside the 
+			triangle using edge function. Each triangle edge defines a line, and the interior of the triangle is the intersection of
+			the three corresponding half-planes. If the sample lies on the correct side of all three edges,  it is inside the triangle.
+			
+			For these samples inside the triangle, I finally computed barycentric coordinates to interpolate attributes such as color and depth.
+		</p>
+
+		<h3>Why algorithm is no worse than bounding-box sampling</h3>
+		<p>
+			The algorithm only checks samples inside the triangle’s bounding box. We let N be the number of samples inside the triangle's 
+			bounding box. Since the algorithm examines only samples within this bounding box and performs a constant-time inside-triangle test for
+			each sample, this would take constant time. Runtime is O(N). 
+
+			This is no worse than an algorithm that checks every sample within the bounding box, since both approaches iterate over the same set 
+			of candidate samples and perform constant work per sample.
+		</p>
+
 
 		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
@@ -59,7 +94,7 @@
 			  <tr>
 				<td style="text-align: center;  padding-bottom: 20px;">
 				  <img src="hw1_1_full.png" width="400px"/>
-				  <figcaption>Screenshot #1: basic/test4.svg (default view, sample rate 1)</figcaption>
+				  <figcaption>Screenshot #1: basic/test4.svg</figcaption>
 				  <figcaption>(default view, sample rate 1)</figcaption>
 				</td>
 			  </tr>
@@ -81,6 +116,8 @@
 		</div>
 
 		<br>
+
+		<h3>Extra Credit</h3>
 
 		<style>
 			.styled-table {
