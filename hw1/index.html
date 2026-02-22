@@ -446,7 +446,32 @@
 		</div>
 
 		<h2>Task 4: Barycentric coordinates</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+			Barycentric coordinates express a point inside a triangle as a weighted combination of the triangle’s vertices.
+			The weights <em>(α, β, γ)</em> sum to 1. If all weights are between 0 and 1, the point lies inside the triangle.
+			I used these weights to smoothly interpolate per-vertex colors across the triangle:
+			<em>C = α·C₀ + β·C₁ + γ·C₂</em>. To render triangles with smoothly varying vertex colors, I implemented
+			<code>RasterizerImp::rasterize_interpolated_color_triangle(...)</code> using
+			those barycentric coordinates. 
+		</p>
+
+		<h3>How barycentric coordinates help with color interpolation</h3>
+		<p>
+			Once I compute <code>α, β, γ</code> for a sample point <code>p</code>, I interpolate color by applying the same
+			weights to the vertex colors:
+		</p>
+			<pre><code>C(p) = α C0 + β C1 + γ C2</code></pre>
+		<p>
+			This produces a smooth gradient across the triangle: each pixel/sub-sample gets a color that is a blend of the three
+			vertex colors, weighted by closeness to each vertex.
+		</p>
+
+		<figure>
+			<img src="hw1_4.png" style="width:50%"/>
+			<figcaption>basic/test7.svg</figcaption>
+			<figcaption>sample rate 1</figcaption>
+		</figure>
+
 
 		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
