@@ -474,11 +474,86 @@
 
 
 		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+			Pixel sampling is how the renderer chooses a texture color for a given screen-space sample point.
+			After rasterization determines that a sample lies inside a triangle, the triangle’s texture coordinates (<code>u,v</code>)
+			are interpolated to that sample location. Pixel sampling then takes the continuous <code>(u,v)</code>
+			position on the texture image and converts it into an actual color value from the texture pixel grid.
+		</p>
+		<p>
+			In my texture mapping pipeline, the steps are as follows:
+		</p>
+		<ol>
+			<li>Rasterize triangle and compute barycentric coordinates at each sub-sample.</li>
+			<li>Use barycentric interpolation to compute the texture coordinate <code>(u,v)</code> at that sub-sample.</li>
+			<li>Call the texture sampler with <code>(u,v)</code> to retrieve a color from the texture.</li>
+			<li>Write that color into the supersample buffer; later resolve by averaging (if supersampling is enabled).</li>
+		</ol>
+
+		<h3>Nearest vs. bilinear sampling</h3>
+		<h4>Nearest sampling</h4>
+		<p>
+			Nearest sampling chooses the color of the single texture pixel whose center is closest to the queried
+			<code>(u,v)</code>. Nearest sampling is fast and simple, but it can produce visible blockiness and shimmering 
+			because the chosen texture pixel can change abruptly as <code>(u,v)</code> moves slightly.
+		</p>
+		<h4>Bilinear sampling</h4>
+		<p>
+			Bilinear sampling uses the four texure pixels surrounding <code>(u,v)</code> and computes a weighted average based on the
+			fractional offset within the texture pixel cell. This smooths transitions across texture pixels and usually 
+			reduces blockiness especially when the texture is magnified on screen.
+		</p>
+
+		<h3>Comparison screenshots (nearest vs bilinear, 1 spp vs 16 spp)</h3>
+		<p>
+			I examined the SVG files in <code>svg/texmap/</code> and used the pixel inspector to find a region where bilinear
+			sampling is clearly better than nearest sampling (e.g., a magnified textured area with sharp transitions or a
+			diagonal edge in the texture). Below are the required screenshots, all generated using the GUI <strong>'S'</strong>
+			hotkey (not OS screenshots):
+		</p>
+
+		<div class="grid">
+			<figure class="ph">
+			<div><strong>Nearest sampling, 1 sample per pixel</strong></div>
+			<div style="margin-top: 8px;">
+				<img src="hw1_5_sample1_nearest.png" style="width:50%"/>
+			</div>
+			</figure>
+
+			<figure class="ph">
+			<div><strong>Nearest sampling, 16 samples per pixel</strong></div>
+			<div style="margin-top: 8px;">
+				<img src="hw1_5_sample16_nearest.png" style="width:50%"/>
+			</div>
+			</figure>
+
+			<figure class="ph">
+			<div><strong>Bilinear sampling, 1 sample per pixel</strong></div>
+			<div style="margin-top: 8px;">
+				<img src="hw1_5_sample1_linear.png" style="width:50%"/>
+			</div>
+			</figure>
+
+			<figure class="ph">
+			<div><strong>Bilinear sampling, 16 samples per pixel</strong></div>
+			<div style="margin-top: 8px;">
+				<img src="hw1_5_sample16_linear.png" style="width:50%"/>
+			</div>
+			</figure>
+		</div>
+
+		<h3>Comments on the relative differences</h3>
+		<p>
+			Nearest sampling looks blocky when a texture is magnified, because each screen sample snaps to
+			a single texel. Even with higher supersampling, supersampling mainly reduces aliasing at
+			triangle edges and improves coverage estimation, but it does not fully remove the pixelated look inside the
+			textured region when nearest sampling is used. Bilinear sampling produces smoother texture 
+			appearance because it blends between neighboring texture pixels,
+			reducing abrupt jumps in color.
+		</p>
 
 		<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
+		
 		<h2>(Optional) Task 7: Extra Credit - Draw Something Creative!</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
