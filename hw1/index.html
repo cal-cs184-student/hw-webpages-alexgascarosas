@@ -63,6 +63,7 @@
 
 
 		<h2>Task 1: Drawing Single-Color Triangles</h2> 
+
 		<h3>Algorithm</h3>
       	<p>
 			To rasterize a triangle, I first transformed its three vertices into screen space. Once I had the 2D coordinates, 
@@ -239,6 +240,88 @@
 
 		
 		<h2>Task 2: Antialiasing by Supersampling</h2>
+
+		<h3>Algorithm</h3>
+      	<p>
+			I implemented supersampling by rasterizing into a supersample buffer instead of writing directly
+			into the final framebuffer. I stored:
+		</p>
+		<ul>
+			<li>
+				<code>sample_rate = N</code> sub-samples per pixel.
+			</li>
+			<li>
+				<code>sdim = sqrt(sample_rate)</code>, so each pixel has an <code>sdim × sdim</code> grid of sub-samples.
+			</li>
+			<li>
+				A <code>sample_buffer</code> of size <code>width * height * sample_rate</code>, where each entry stores a color
+				for a single sub-sample.
+			</li>
+		</ul>
+		<p>
+			Conceptually, all sub-samples for pixel <code>(x, y)</code> are stored contiguously:
+		</p>
+			<pre><code>base = (y * width + x) * sample_rate
+			sample_index = base + s   // s in [0, sample_rate)</code>
+			</pre>
+
+		<p>
+			I still compute the triangle’s axis-aligned bounding box in pixel coordinates. The difference here is that inside
+			the bounding box I test every sub-sample location instead of only the pixel center 
+		</p>
+		<ol>
+			<li>
+				I computed and clamped the triangle bounding box to the screen.
+			</li>
+			<li>
+				I then looped over each pixel <code>(x, y)</code> in the bounding box.
+			</li>
+			<li>
+				Then looped over each sub-sample <code>(i, j)</code> in an <code>sdim × sdim</code> grid and evaluate the point:
+				<pre><code>sx = x + (i + 0.5) / sdim
+				sy = y + (j + 0.5) / sdim</code></pre>
+			</li>
+			<li>
+				Then I ran the same point-in-triangle test -edge functions / half-plane tests- at <code>(sx, sy)</code>.
+				If inside, write the triangle’s color into the corresponding entry of <code>sample_buffer</code>.
+			</li>
+		</ol>
+
+		<p>
+			For points/lines, I set all sub-samples of the covered pixel to the same color. After rasterizing all 
+			primitives into <code>sample_buffer</code>, I computed the final framebuffer color by averaging
+			all sub-samples in each pixel:
+		<pre>
+			<code>C(x,y) = (1 / sample_rate) * sum_{s=0..sample_rate-1} C_s(x,y)</code>
+		</pre>
+			This resolving step converts how many sub-samples were inside the triangle into smoother
+			pixel intensities.
+		</p>
+
+		<h3>Why supersampling is useful</h3>
+		<p>
+          Supersampling is useful because it reduces aliasing by approximating the true continuous
+          area that a triangle covers within each pixel. Instead of a single on&off decision at the pixel center, pixels
+          near edges can become partially covered, producing intermediate colors that look a lot smoother.
+        </p>
+      
+      	<h3>Pipeline modifications</h3>
+		<p>Compared to the base rasterization pipeline from task 1, I made these changes:
+		<ul>
+			<li>I asterized into <code>sample_buffer</code>, not directly into the framebuffer.</li>
+			<li>Modified triangle rasterization to test and fill multiple sub-samples per pixel.</li>
+			<li>Added a final resolve step that averages sub-samples into one framebuffer color per pixel.</li>
+			<li>Resized/reinitialized the supersample buffer when the sample rate or viewport size changes.</li>
+		</ul>
+		</p>
+
+		<h3>How supersampling antialiases triangles</h3>
+		<p>
+			Triangle edges usually cut through pixels at arbitrary positions. With 1 sample/pixel, edge pixels
+			flip abruptly between filled and unfilled. With higher sample rates, only some sub-samples are inside the triangle,
+			so the averaged pixel color becomes proportional to coverage. This ultimatley produces a smooth transition along edges instead
+			of the staircase pattern from the baseline implementation.
+		</p>
 		
 		<h3>Images</h3>
 		<figure>
