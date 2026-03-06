@@ -28,7 +28,7 @@
 	<body>
 		<div class="container">
 		<h1>CS184/284A Spring 2025 Homework 2 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+		<div style="text-align: center;">Names: Alex Gasca Rosas and Winfred Wang</div>
 
 		<br>
 
@@ -37,19 +37,67 @@
 		<br>
 		
 		Link to GitHub repository: (TODO) <a href="https://github.com/cal-cs184-student/hw2-meshedit-wwagr">GitHub Repo</a>
+
+		<br>
+
 		Link to GitHub hw repository: <a href="https://github.com/cal-cs184-student/hw-webpages-alexgascarosas">My Github</a>
 
+		<!--
 		<figure>
 			<img src="teapot.png" alt="Teapot" style="width:50%"/>
 			<figcaption>You can add images with captions!</figcaption>
 		</figure>
+		-->
 
 		<!--
 		We've already added one heading per part, to make your write-up as navigable when grading. Please fit your write-up within these sections!
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+		
+		<p>
+			In this homework, we implemented several geometric modeling techniques related to Bezier curves, Bezier surfaces, and triangle meshes. 
+			Overall, the assignment focused on understanding how smooth curves and surfaces can be represented mathematically and how triangle meshes 
+			can be manipulated using the half-edge data structure.
+		</p>
+		<p>
+			In the first section, we implemented Bezier curve evaluation using de Casteljau’s algorithm. The idea behind the algorithm is to repeatedly 
+			linearly interpolate between control points using a parameter t. Each step creates a smaller set of intermediate points until only one point 
+			remains, which lies on the Bezier curve. We implemented the function that performs one step of this interpolation and then used it recursively 
+			to evaluate the curve.
+		</p>
+		<p>
+			In the first section, we implemented Bezier curve evaluation using de Casteljau’s algorithm. The idea behind the algorithm is to repeatedly 
+			linearly interpolate between control points using a parameter t. Each step creates a smaller set of intermediate points until only one point 
+			remains, which lies on the Bezier curve. We implemented the function that performs one step of this interpolation and then used it recursively 
+			to evaluate the curve.
+		</p>
+		<p>
+			Next, we extended this idea to Bezier surfaces. Instead of evaluating a single curve, the surface evaluation works by applying the same 1D 
+			algorithm in two directions. First, each row of control points is treated as a Bezier curve and evaluated using parameter u. This produces a 
+			set of points that form another curve, which is then evaluated using parameter v to get the final point on the surface.
+		</p>
+		<p>
+			In the second part of the homework, we worked with triangle meshes using the half-edge data structure. We implemented area-weighted vertex normals, 
+			which are used for smooth shading. To compute this, we iterated over all faces connected to a vertex, computed each face’s normal using a cross 
+			product, weighted it by the face area, and summed them together before normalizing the result.
+		</p>
+		<p>
+			After that, we implemented two mesh operations: edge flips and edge splits. Edge flipping changes the diagonal shared by two triangles without 
+			adding or removing elements, while edge splitting inserts a new vertex at the midpoint of an edge and creates additional edges and faces. 
+			These parts required carefully updating many pointers in the half-edge structure to make sure all vertices, edges, faces, and halfedges 
+			still pointed to the correct elements.
+		</p>
+		<p>	
+			Finally, we implemented loop subdivision to upsample the mesh. This algorithm subdivides each triangle into four smaller triangles and updates 
+			vertex positions using weighted averages of neighboring vertices. I first computed the new positions for vertices and edge midpoints, then 
+			performed edge splits and flips to subdivide the mesh, and finally updated the vertex positions.
+		</p>
+		<p>
+			One thing we found interesting about homework 2 is how much detail is involved in working with meshes. The math concepts like 
+			interpolation and subdivision are fairly straightforward, but implementing them correctly with the half-edge data structure required careful 
+			debugging and attention to how everything is connected.
+		</p>
 
 		<h2>Section I: Bezier Curves and Surfaces</h2>
 
