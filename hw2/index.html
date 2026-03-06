@@ -149,49 +149,215 @@
 		<figure>
 			<img src="p1_part2.png" style="width:100%"/>
 			<figcaption>
-						Bezier curve by moving the original control points around and modifying 
-						the parametert via mouse scrolling.
+						Screenshot of bez/teapot.bez evaluated by part 2 implementation.
 			</figcaption>
 		</figure>
 
 		<h2>Section II: Triangle Meshes and Half-Edge Data Structure</h2>
 
 		<h3>Part 3: Area-weighted vertex normals</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+		For Part 3, I implemented area-weighted vertex normals by looping through all the triangles connected to a given vertex using the half-edge structure. Starting from the vertex’s halfedge, I kept moving around the neighboring faces with twin()->next() until I got back to the starting halfedge.
+		For each non-boundary face, I took the three triangle vertices and formed two edge vectors from the current vertex to the other two vertices. Then I used the cross product of those two vectors to get the face normal. Since the magnitude of that cross product is proportional to the triangle’s area, this automatically gives an area-weighted normal, so I could just add it directly to the running sum.
+		After going through all neighboring faces, I normalized the final sum to make it a unit normal vector. This gives a smoother normal at the vertex compared to just using one face normal, which is why the teapot looks smooth with Phong shading instead of having the more faceted flat-shaded look.
+		One thing I had to be careful about was making sure the normals pointed outward instead of inward, since otherwise the shading looked way too dark. I also had to use HalfedgeCIter since normal() is a const function and shouldn’t modify the mesh.
+		</p>
+
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="section2_part3_2.png" width="500px"/>
+				  <figcaption>dae/teapot.dae teapot shading with vertex normals</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="section2_part3_1.png" width="500px"/>
+				  <figcaption>dae/teapot.dae teapot shading without vertex normals</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
 
 		<h3>Part 4: Edge flip</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+		For the edge flip implementation, the goal was to change the diagonal shared by two adjacent triangles. Given two triangles (a,b,c) and (c,b,d), flipping the edge 
+		(b,c) replaces it with the edge (a,d), which changes the triangles to (a,d,c) and (a,b,d). First, I checked if the edge or either of its neighboring faces was on the boundary. 
+		If it was, I just returned the edge without flipping it since boundary edges should not be flipped. After that, I gathered all the halfedges, vertices, edges, and faces involved 
+		in the two triangles around the edge. The main part of the implementation was updating the halfedge connectivity. I reassigned the next, twin, vertex, edge, and face pointers 
+		using setNeighbors() so that the halfedges correctly represented the new triangle configuration after the flip. I also updated the halfedge pointers stored in the vertices, 
+		faces, and the flipped edge to make sure everything still pointed to valid elements in the mesh. 
+		</p>
+		<p>
+		One debugging trick that helped a lot was drawing the two triangles before 
+		and after the flip and labeling all the halfedges. This made it much easier to keep track of which pointers needed to change. Another thing I did while debugging was repeatedly 
+		flipping the same edge multiple times in the viewer to make sure the mesh stayed consistent and didn’t break or create holes. During debugging I initially had issues where 
+		some faces would render incorrectly or parts of the mesh would disappear. This usually meant that one of the halfedge pointers was assigned incorrectly. Carefully checking 
+		every pointer and comparing it to my diagram helped me find the mistakes. Once all the pointers were set correctly, the edge flipping worked consistently across the mesh.
+		</p>
+
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="section2_part4_flip1before.png" width="400px"/>
+				  <figcaption>Edge 1 before flip</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="section2_part4_flip1after.png" width="400px"/>
+				  <figcaption>Edge 1 after flip</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="section2_part4_flip2before.png" width="400px"/>
+				  <figcaption>Edge 2 before flip</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="section2_part4_flip2after.png" width="400px"/>
+				  <figcaption>Edge 2 after flip</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 
 		<h3>Part 5: Edge split</h3>
+		<p>
 		For edge split, given an edge (b,c) shared by triangles (a,b,c) and (c,b,d), I insert a new vertex m at the midpoint of (b,c)
 		and create 4 new triangles: (a,c,m), (a,b,m), (b,d,m), (c,d,m). I allocate 8 new halfedges, 4 new edges, 4 new faces, and 1 new vertex,
 		then set all neighbor pointers via setNeighbors for every halfedge in the region, including the 4 border halfedges whose next and face pointers change.
 		After wiring everything up, I delete the old edge, its two halfedges, and the two old faces, rather than reassigning them.
+		</p>
 
+		<p>
 		For an implementation trick, I listed out every relevant mesh element upfront and named them directly after the diagram shown in lecture,
 		which made the setNeighbors calls straightforward to write and verify against the picture.
 		I also chose to delete old elements instead of reassigning pointers, which added a few extra lines but made the logic easier to follow.
+		</p>
 
+		<p>
 		Debugging was tedious since the counter clockwise winding order tripped me up a lot since my brain naturally goes clockwise,
 		so I kept getting next pointers backwards. Most of the debugging was manually checking each setNeighbors call one by one against the diagram.
 		Drawing the before and after diagrams with labeled halfedges was essential.
+		</p>
+
+		
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="section2_part5_1.png" width="400px"/>
+				  <figcaption>Edge after first split</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="section2_part5_2.png" width="400px"/>
+				  <figcaption>Edge after second split</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="section2_part5_3.png" width="400px"/>
+				  <figcaption>Edge after third split</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="section2_part5_4.png" width="400px"/>
+				  <figcaption>Edge after fourth split</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="section2_part_5.png" width="400px"/>
+				  <figcaption>Edge before flips/splits</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="section2_part5_6.png" width="400px"/>
+				  <figcaption>Edge after flip1</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="section2_part5_7.png" width="400px"/>
+				  <figcaption>Edge after split2</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="section2_part5_8.png" width="400px"/>
+				  <figcaption>Edge after flip2</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="section2_part5_9.png" width="400px"/>
+				  <figcaption>Edge after split2</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
 
 		<h3>Part 6: Loop subdivision for mesh upsampling</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+		For loop subdivision, I followed the general steps described in the assignment. First, I computed the new positions for all the original vertices and stored them in 
+		newPosition without immediately updating their actual positions. For each vertex, I looped through its neighboring vertices using the half-edge structure, counted 
+		how many neighbors it had, and applied the Loop subdivision formula to compute the updated position. Next, I computed the positions for the new vertices that would 
+		be created when splitting edges. For each edge, I used the weighted formula involving the two endpoints of the edge and the two opposite vertices from the adjacent 
+		triangles. I stored this value in Edge::newPosition. After that, I split all the original edges in the mesh. To make sure I didn’t accidentally split edges 
+		that were created during the process, I first stored the original edges in a vector and only iterated through those. When a new vertex was created during the 
+		split, I marked it as isNew and set its position to the value I had already computed earlier. Then I flipped the edges that connected one old vertex and one new vertex. 
+		This helps produce the correct triangulation pattern for Loop subdivision. Finally, after all the topology changes were done, I copied the newPosition values 
+		into the actual vertex positions.
+		</p>
+		<p>
+		One thing that helped during debugging was doing the steps in order and checking them one at a time. If something looked wrong in the mesh, it was easier to figure
+		out whether the issue came from the vertex position calculations, the edge splitting, or the edge flipping. Keeping track of isNew for vertices and edges was also really 
+		important, because without that it was easy to accidentally flip or process the wrong edges. When running loop subdivision a few times on meshes, I noticed that 
+		sharp edges and corners get smoothed out pretty quickly. The mesh starts to look more rounded because the vertex positions are basically being averaged with their neighbors. 
+		Even shapes with sharp corners will gradually lose those corners after a few iterations. When I tested loop subdivision on cube.dae, the cube became slightly 
+		asymmetric after a few iterations. This happens because the cube is made of triangles, and the way each square face is split into triangles isn’t perfectly symmetric. 
+		Since Loop subdivision works on the triangle connectivity, small differences in how the triangles are arranged can cause the smoothing to behave slightly differently in different areas.
+        To make the cube subdivide more symmetrically, I tried flipping some edges first so that the triangulation was more balanced across the faces. After doing that, 
+		the subdivision results looked more even. Changing the connectivity beforehand helps the algorithm behave more symmetrically.
+		</p>
 
-		<h2>(Optional) Section III: Potential Extra Credit - Art Competition: Model something Creative</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
-				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-				</ul>
-			</li>
-		</ul>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="p6_1.png" width="400px"/>
+				  <figcaption>Square after 0 subdivisions</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="p6_2.png" width="400px"/>
+				  <figcaption>Square after 1 subdivisions</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="p6_3.png" width="400px"/>
+				  <figcaption>Square after 2 subdivisions</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="p6_4.png" width="400px"/>
+				  <figcaption>Square after 3 subdivisions</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="p6_5.png" width="400px"/>
+				  <figcaption>Square after 4 subdivisions</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="p6_6.png" width="400px"/>
+				  <figcaption>Square after 5 subdivisions</figcaption>
+				</td>
+			  </tr>
+			</table>
 		</div>
+		
+		<h2>(Optional) Section III: Potential Extra Credit - Art Competition: Model something Creative</h2>
+	
 	</body>
 </html>
