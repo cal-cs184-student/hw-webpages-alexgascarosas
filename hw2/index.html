@@ -131,7 +131,7 @@
 		</div>
 
 		<figure>
-			<img src="p1_7.png" style="width:50%"/>
+			<img src="p1_7.png" style="width:100%"/>
 			<figcaption>
 						Bezier curve by moving the original control points around and modifying 
 						the parametert via mouse scrolling.
@@ -145,6 +145,14 @@
 		I then run the full 1D algorithm on those n points at parameter v to obtain the final surface point P(u, v).
 		In my implementation, evaluate1D repeatedly calls evaluateStep until only one point remains, and evaluate iterates over each row of controlPoints,
 		calling evaluate1D with u to collect the n intermediate points, then calls evaluate1D again on those points with v to produce the final result.
+
+		<figure>
+			<img src="p1_part2.png" style="width:100%"/>
+			<figcaption>
+						Bezier curve by moving the original control points around and modifying 
+						the parametert via mouse scrolling.
+			</figcaption>
+		</figure>
 
 		<h2>Section II: Triangle Meshes and Half-Edge Data Structure</h2>
 
