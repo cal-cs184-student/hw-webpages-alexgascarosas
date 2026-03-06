@@ -64,32 +64,17 @@
 			In the first section, we implemented Bezier curve evaluation using de Casteljau’s algorithm. The idea behind the algorithm is to repeatedly 
 			linearly interpolate between control points using a parameter t. Each step creates a smaller set of intermediate points until only one point 
 			remains, which lies on the Bezier curve. We implemented the function that performs one step of this interpolation and then used it recursively 
-			to evaluate the curve.
-		</p>
-		<p>
-			In the first section, we implemented Bezier curve evaluation using de Casteljau’s algorithm. The idea behind the algorithm is to repeatedly 
-			linearly interpolate between control points using a parameter t. Each step creates a smaller set of intermediate points until only one point 
-			remains, which lies on the Bezier curve. We implemented the function that performs one step of this interpolation and then used it recursively 
-			to evaluate the curve.
-		</p>
-		<p>
-			Next, we extended this idea to Bezier surfaces. Instead of evaluating a single curve, the surface evaluation works by applying the same 1D 
+			to evaluate the curve. Next, we extended this idea to Bezier surfaces. Instead of evaluating a single curve, the surface evaluation works by applying the same 1D 
 			algorithm in two directions. First, each row of control points is treated as a Bezier curve and evaluated using parameter u. This produces a 
 			set of points that form another curve, which is then evaluated using parameter v to get the final point on the surface.
 		</p>
 		<p>
 			In the second part of the homework, we worked with triangle meshes using the half-edge data structure. We implemented area-weighted vertex normals, 
 			which are used for smooth shading. To compute this, we iterated over all faces connected to a vertex, computed each face’s normal using a cross 
-			product, weighted it by the face area, and summed them together before normalizing the result.
-		</p>
-		<p>
-			After that, we implemented two mesh operations: edge flips and edge splits. Edge flipping changes the diagonal shared by two triangles without 
+			product, weighted it by the face area, and summed them together before normalizing the result. After that, we implemented two mesh operations: edge flips and edge splits. Edge flipping changes the diagonal shared by two triangles without 
 			adding or removing elements, while edge splitting inserts a new vertex at the midpoint of an edge and creates additional edges and faces. 
 			These parts required carefully updating many pointers in the half-edge structure to make sure all vertices, edges, faces, and halfedges 
-			still pointed to the correct elements.
-		</p>
-		<p>	
-			Finally, we implemented loop subdivision to upsample the mesh. This algorithm subdivides each triangle into four smaller triangles and updates 
+			still pointed to the correct elements. Finally, we implemented loop subdivision to upsample the mesh. This algorithm subdivides each triangle into four smaller triangles and updates 
 			vertex positions using weighted averages of neighboring vertices. I first computed the new positions for vertices and edge midpoints, then 
 			performed edge splits and flips to subdivide the mesh, and finally updated the vertex positions.
 		</p>
@@ -108,7 +93,6 @@
 		In my implementation, I loop from index 0 to (size - 2), linearly interpolating each consecutive pair (points[i], points[i+1]) to build the next level,
 		then repeat this process on successive levels until a single point remains.
 
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
@@ -161,7 +145,18 @@
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 		<h3>Part 5: Edge split</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		For edge split, given an edge (b,c) shared by triangles (a,b,c) and (c,b,d), I insert a new vertex m at the midpoint of (b,c)
+		and create 4 new triangles: (a,c,m), (a,b,m), (b,d,m), (c,d,m). I allocate 8 new halfedges, 4 new edges, 4 new faces, and 1 new vertex,
+		then set all neighbor pointers via setNeighbors for every halfedge in the region, including the 4 border halfedges whose next and face pointers change.
+		After wiring everything up, I delete the old edge, its two halfedges, and the two old faces, rather than reassigning them.
+
+		For an implementation trick, I listed out every relevant mesh element upfront and named them directly after the diagram shown in lecture,
+		which made the setNeighbors calls straightforward to write and verify against the picture.
+		I also chose to delete old elements instead of reassigning pointers, which added a few extra lines but made the logic easier to follow.
+
+		Debugging was tedious since the counter clockwise winding order tripped me up a lot since my brain naturally goes clockwise,
+		so I kept getting next pointers backwards. Most of the debugging was manually checking each setNeighbors call one by one against the diagram.
+		Drawing the before and after diagrams with labeled halfedges was essential.
 
 		<h3>Part 6: Loop subdivision for mesh upsampling</h3>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
