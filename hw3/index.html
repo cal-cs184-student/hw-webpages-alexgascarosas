@@ -196,6 +196,44 @@
 		</div>
 
 		<h2>Part 3: Direct Illumination</h2>
+		<h3>Direct Lighting: Uniform Hemisphere Sampling</h3>
+		<p>
+			For each hit point, we pick num_samples random directions spread evenly across the hemisphere above
+			it, shoot a ray in each direction, and check if that ray hits a light. If it does, we add that
+			light's contribution to the total. 
+			We then average all contributions at the end. We sum all contributions and divide by
+			num_samples. Because we are shooting rays in completely random directions, most of them miss the
+			light entirely, so many samples contribute and produces a lot of noise.
+		</p>
+		<h3>Direct Lighting: Importance Sampling</h3>
+		<p>
+			Instead of random hemisphere directions, we sample each light directly. For every light in the
+			scene, we call sample_L to get a direction wi pointing toward that light, the emitted radiance Li,
+			the distance to the light, and the pdf for this sample. We then check two things before counting
+			the contribution: first if cos(theta) > 0, meaning the light is in front of the surface, and second a
+			shadow ray from hit_p toward the light doesn't hit anything before reaching it (max_t =
+			distToLight - EPS_F). If both pass, we accumulate contribution. Point lights
+			are sampled once ; area lights are sampled ns_area_light times and averaged.
+			Because every sample is aimed at a light, far fewer samples are wasted, giving much less noise for
+			the same sample count.
+		</p>
+		<h3>Noise Comparison: Varying Light Rays</h3>
+		<p>
+			Using CBbunny with -s 1 and light importance sampling, increasing -l reduces noise in the soft
+			shadows significantly. At -l 1 the shadow regions are very grainy with high variance between
+			pixels. At -l 4 and -l 16 the shadows visibly smooth out. At -l 64 the soft shadow edges are
+			nearly clean with only faint residual noise. 
+		</p>
+		<h3>Hemisphere vs. Importance Sampling</h3>
+		<p>
+			Both methods converge to the correct answer, but importance sampling gets there with far less noise.
+			CBbunny at -s 64 -l 32 took 47.98s with hemisphere sampling vs. 24.74s with importance sampling, which is much faster
+			and produced a much cleaner image. Hemisphere sampling sends rays in arbitrary
+			directions; most miss the small area light entirely, so the vast majority of samples contribute zero
+			and variance is high. Importance sampling always shoots toward a light, so nearly every sample
+			contributes, dramatically reducing variance. The practical result is that hemisphere sampling needs
+			far more samples per pixel to look comparable to importance sampling at the same settings.
+		</p>
 
 		<h2>Part 4: Global Illumination</h2>
 
