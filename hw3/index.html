@@ -499,7 +499,68 @@
 
 
 		<h2>Part 5: Adaptive Sampling</h2>
-		
+
+		<p>
+			For Part 5, I implemented adaptive sampling in PathTracer::raytrace_pixel() so that the renderer does not waste the same number of samples on every pixel. 
+			The basic idea is that some pixels converge quickly because they lie in smooth, low-variance regions, while others need many more samples because they 
+			contain edges, shadows, highlights, or other difficult lighting effects. Instead of always tracing a fixed number of rays per pixel, adaptive sampling 
+			estimates whether each pixel has converged and stops early for pixels that are already stable. This reduces unnecessary work while still producing a low-noise image.
+		</p>
+		<p>
+			My implementation follows the confidence interval test described in the assignment. As I traced samples through a pixel, I kept track of the running 
+			sums s1 and s2, where s1 is the sum of sample illuminances and s2 is the sum of squared illuminances. Using these, I computed the sample mean μ and 
+			variance σ² without storing every individual sample. Every samplesPerBatch samples, I checked whether the pixel had converged by computing I = 1.96 𝜎/sqrt(𝑛)
+			and testing whether I≤maxTolerance⋅μ
+
+		</p>
+		<p>
+			If this condition was satisfied, I treated the pixel as converged and stopped tracing additional rays for that pixel. Otherwise, I continued 
+			sampling until either the pixel converged or the maximum sample count ns_aa was reached. I used Vector3D::illum() when updating the statistics,.  I also made 
+			sure to update the sampleCountBuffer with the actual number of samples used for each pixel, since this is what allows the renderer 
+			to output the sample rate image. That image is especially helpful for debugging, because it shows whether the algorithm is spending 
+			more samples in difficult areas like geometric edges, shadows, and noisy indirect-light regions, while spending fewer samples in smooth flat areas.
+		</p>
+		<p>
+			The final rendered results looked essentially noise-free. Overall, adaptive sampling was a nice improvement because it made the path tracer 
+			smarter about where to spend computation. With adaptive sampling, the renderer can still achieve a clean final image. This makes the rendering 
+			process more efficient while keeping the quality high.
+		</p>
+			
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/wall_e_adaptive.png" width="400px"/>
+				  <figcaption>/dae/sky/wall-e.dae final rendered image, 2048 spp, adaptive sampling enabled</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/wall_e_adaptive_rate.png" width="400px"/>
+				  <figcaption>/dae/sky/wall-e.dae sampling rating</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/dragon_adaptive.png" width="400px"/>
+				  <figcaption>/dae/sky/dragon.dae final rendered image, 2048 spp, adaptive sampling enabled</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/dragon_adaptive_rate.png" width="400px"/>
+				  <figcaption>/dae/sky/dragon.dae sampling rating</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_part5.png" width="400px"/>
+				  <figcaption>/dae/sky/wall-e.dae final rendered image, 2048 spp, adaptive sampling enabled</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_part5_rate.png" width="400px"/>
+				  <figcaption>/dae/sky/wall-e.dae sampling rating</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
 		<h2>(Optional) Homework 3 Extra Credit</h2>
 	
 	</body>
