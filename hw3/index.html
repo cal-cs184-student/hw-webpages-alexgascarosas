@@ -94,6 +94,59 @@
 
 		<h2>Part 1: Ray Generation and Scene Intersection</h2>
 
+		<h3>Ray Generation</h3>
+		<p>
+			First, we map x and y from [0,1] to the sensor plane at z = -1 in camera space. 
+			We then build a camera-space direction (sensor_x, sensor_y, -1) and rotate it to world space by
+			multiplying with the c2w. The ray origin is the camera position `pos`,
+			and we set min_t/max_t.
+		</p>
+		<h3>Pixel Sampling</h3>
+		<p>
+			For each pixel (x, y), we shoot ns_aa rays. Each iteration we call
+			get_sample() to get a random offset, add it to the integer
+			pixel corner (x, y), then normalize by the image dimensions to get the screen coordinate for
+			generate_ray. We call est_radiance_global_illumination on each ray and accumulate the result.
+			After all samples, we divide by ns_aa to get the average radiance for the pixel.
+			This jittering helps with antialiasing.
+		</p>
+		<h3>Triangle Intersection</h3>
+		<p>
+			A ray is o + t*d. A point inside the triangle is (1-u-v)*p1 + u*p2 + v*p3. Setting them equal
+			gives 3 equations in 3 unknowns (t, u, v). We solve this with the Moller–Trumbore algorithm.
+
+				e1 = p2 - p1,  e2 = p3 - p1
+				h = cross(d, e2),  a = dot(e1, h)     
+				u = dot(o - p1, h) / a                 
+				v = dot(d, cross(o - p1, e1)) / a      
+				t = dot(e2, cross(o - p1, e1)) / a     
+
+			We reject if u < 0, v < 0, u+v > 1 (outside triangle), or t outside [min_t, max_t]. On a valid
+			hit we set r.max_t = t, then populate isect: t-value, interpolated
+			normal (1-u-v)*n1 + u*n2 + v*n3, primitive pointer, and BSDF.
+		</p>
+		<h3>Sphere Intersection</h3>
+		<p>
+			Substituting the ray into |p - center|^2 = r^2 gives the quadratic:
+
+			a*t^2 + b*t + c = 0
+			where  a = |d|^2,  b = 2*dot(d, o-center),  c = |o-center|^2 - r^2
+
+			The test function computes the discriminant b^2 - 4ac. If negative, no intersection. Otherwise the two roots
+			t1 and t2 are returned.
+
+			intersect calls test, then picks t1 if it's in [min_t, max_t], otherwise falls back to t2
+			(handles the case where the ray origin is inside the sphere). On a valid hit we set r.max_t = t,
+			store t in isect, compute the normal, and fill in the primitive and BSDF pointers.
+		</p>
+
+		<figure>
+			<img src="part1imgs/part1.png" style="width:100%"/>
+			<figcaption>
+						/CBspheres_lambertian.dae part1
+			</figcaption>
+		</figure>
+
 		<h2>Part 2: Bounding Volume Hierarchy</h2>
 
 		<h2>Part 3: Direct Illumination</h2>
@@ -146,13 +199,7 @@
 			</table>
 		</div>
 
-		<figure>
-			<img src="p1_7.png" style="width:100%"/>
-			<figcaption>
-						Bezier curve by moving the original control points around and modifying 
-						the parametert via mouse scrolling.
-			</figcaption>
-		</figure>
+
 
 		<h3>Part 2: Bounding Volume Hierarchy</h3>
 		De Casteljau's algorithm extends to Bezier surfaces by applying it separably along each parameter axis.
