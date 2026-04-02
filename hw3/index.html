@@ -149,6 +149,52 @@
 
 		<h2>Part 2: Bounding Volume Hierarchy</h2>
 
+		<h3>BVH Construction</h3>
+		<p>
+			construct_bvh works recursively. First, compute the combined bounding box of all primitives in the
+			range and create a node with it. If the primitive count is within max_leaf_size, mark it as a leaf and return.
+
+			Otherwise, pick a split axis and point. We build a second bounding box over the centroids of all
+			primitives, then split along whichever axis has the widest centroid extent. This heuristic
+			tends to produce balanced trees because it splits where primitives are most
+			spread out spatially, avoiding the case of splitting the wrong axis and getting one child
+			that contains almost everything. The split point is the midpoint of that extent. We use
+			partition to reorder the primitives list in place, then recurse into [start, mid) and [mid, end).
+			If all centroids are identical, we fall back to splitting evenly by index to avoid infinite recursion.
+		</p>
+		<h3>BVH Intersection</h3>
+		<p>
+			has_intersection and intersect both start by testing the ray against the node's bounding box. If the
+			ray misses, we return immediately without touching any children. For leaf nodes, we test each
+			primitive directly. For interior nodes, we recurse into both children. has_intersection can
+			return as soon as either child returns true; intersect must visit both children because the
+			farther child might still contain the closest hit.
+		</p>
+		<h3>BVH Rendering Performance</h3>
+		<p>
+			Rendering maxplanck.dae (50,801 triangles) before proper BVH traversal was implemented took 20.9s.
+			After implementing BVH traversal, CBlucy.dae (133,796
+			primitives) rendered in just 0.036 seconds.  Without BVH, every ray tests against every
+			primitive, which makes it O(n) per ray. With BVH, the tree prunes
+			entire subtrees per bbox test, bringing the cost down to O(log n) per ray, which is why even the
+			largest scenes render in under a second.
+		</p>
+
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part2imgs/part2_a.png" width="400px"/>
+				  <figcaption>dae/meshedit/maxplanck.dae</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part2imgs/part2_b.png" width="400px"/>
+				  <figcaption>dae/sky/CBlucy.dae</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
 		<h2>Part 3: Direct Illumination</h2>
 
 		<h2>Part 4: Global Illumination</h2>
