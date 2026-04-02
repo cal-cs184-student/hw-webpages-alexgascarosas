@@ -355,6 +355,57 @@
 			</table>
 		</div>
 
+		<p>
+			At m=2, the image starts to show indirect lighting from surfaces reflecting light onto other surfaces, especially in regions that are not directly lit by the light source. 
+			This makes shadowed areas look less harsh and begins to add softer illumination throughout the scene. At m=3, the effect becomes even more subtle but still helps 
+			brighten darker regions and smooth out the overall lighting. Compared to rasterization, these higher-order bounces make the image look much more realistic 
+			because rasterization usually only captures direct lighting, while path tracing captures the way light actually bounces around the scene
+		</p>
+
+		<h3>Accumulated vs unaccumulated bounces</h3>
+
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_accum_m0.png" width="400px"/>
+				  <figcaption>max_ray_depth set to 0</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_accum_m1.png" width="400px"/>
+				  <figcaption>max_ray_depth set to 1</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_accum_m2.png" width="400px"/>
+				  <figcaption>max_ray_depth set to 2</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_accum_m3.png" width="400px"/>
+				  <figcaption>max_ray_depth set to 3</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_accum_m4.png" width="400px"/>
+				  <figcaption>max_ray_depth set to 4</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_accum_m5.png" width="400px"/>
+				  <figcaption>max_ray_depth set to 5</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p>
+			Accumulated bounces involves each image including all lighting contributions up to the specified bounce depth, so the image gets progressively 
+			brighter and more complete as m increases. In contrast, the unaccumulated renders isolate the contribution from a single bounce level,
+			which makes it easier to see what each bounce adds individually. The accumulated images look more like the final render, and the unaccumulated
+			images are more useful for understanding how indirect lighting builds up.
+		</p>
+
 		<h2>Part 5: Adaptive Sampling</h2>
 		
 		<h2>(Optional) Homework 3 Extra Credit</h2>
