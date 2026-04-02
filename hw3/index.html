@@ -49,35 +49,58 @@
 		<h2>Overview</h2>
 		
 		<p>
-			In this homework, we implemented several geometric modeling techniques related to Bezier curves, Bezier surfaces, and triangle meshes. 
-			Overall, the assignment focused on understanding how smooth curves and surfaces can be represented mathematically and how triangle meshes 
-			can be manipulated using the half-edge data structure.
+			In this homework, we built a path tracer, starting from basic ray generation and intersections and eventually getting 
+			to realistic lighting and rendering. The main goal was to simulate how light actually behaves in a scene by tracing rays from the 
+			camera and figuring out how they bounce around and interact with objects.
 		</p>
 		<p>
-			In the first section, we implemented Bezier curve evaluation using de Casteljau’s algorithm. The idea behind the algorithm is to repeatedly 
-			linearly interpolate between control points using a parameter t. Each step creates a smaller set of intermediate points until only one point 
-			remains, which lies on the Bezier curve. We implemented the function that performs one step of this interpolation and then used it recursively 
-			to evaluate the curve. Next, we extended this idea to Bezier surfaces. Instead of evaluating a single curve, the surface evaluation works by applying the same 1D 
-			algorithm in two directions. First, each row of control points is treated as a Bezier curve and evaluated using parameter u. This produces a 
-			set of points that form another curve, which is then evaluated using parameter v to get the final point on the surface.
+			In the first part of the homework, we set up the core ray tracing pipeline. We generated camera rays by mapping image coordinates
+			onto a virtual sensor and then transforming those rays into world space. For each pixel, we shot multiple rays with small random 
+			offsets and averaged the results to get smoother images. We also implemented ray/triangle intersection using the 
+			Möller–Trumbore algorithm and ray/sphere intersection using the quadratic formula, which let us actually detect objects in the 
+			scene and render them correctly.
 		</p>
 		<p>
-			In the second part of the homework, we worked with triangle meshes using the half-edge data structure. We implemented area-weighted vertex normals, 
-			which are used for smooth shading. To compute this, we iterated over all faces connected to a vertex, computed each face’s normal using a cross 
-			product, weighted it by the face area, and summed them together before normalizing the result. After that, we implemented two mesh operations: edge flips and edge splits. Edge flipping changes the diagonal shared by two triangles without 
-			adding or removing elements, while edge splitting inserts a new vertex at the midpoint of an edge and creates additional edges and faces. 
-			These parts required carefully updating many pointers in the half-edge structure to make sure all vertices, edges, faces, and halfedges 
-			still pointed to the correct elements. Finally, we implemented loop subdivision to upsample the mesh. This algorithm subdivides each triangle into four smaller triangles and updates 
-			vertex positions using weighted averages of neighboring vertices. I first computed the new positions for vertices and edge midpoints, then 
-			performed edge splits and flips to subdivide the mesh, and finally updated the vertex positions.
+			In the second part of the homework, we made everything way faster by implementing a BVH - Bounding Volume Hierarchy. 
+			Instead of checking every ray against every object, we grouped primitives into bounding boxes and organized them into a tree. 
+			Then we only checked intersections in parts of the scene that the ray actually goes through. We split along the axis where 
+			primitives were most spread out, which helped keep the tree balanced. This made a huge difference in performance, especially for 
+			large meshes.
 		</p>
 		<p>
-			One thing we found interesting about homework 2 is how much detail is involved in working with meshes. The math concepts like 
-			interpolation and subdivision are fairly straightforward, but implementing them correctly with the half-edge data structure required careful 
-			debugging and attention to how everything is connected.
+			In the third part of the homework, we added lighting. We first implemented a diffuse - Lambertian - material, then 
+			computed direct lighting. We tried two approaches: uniform hemisphere sampling and importance sampling. Hemisphere sampling 
+			sends rays in random directions, but a lot of them miss the light, so it’s pretty noisy. Importance sampling instead shoots 
+			rays directly toward lights, which makes the result much cleaner and more efficient.
+		</p>
+		<p>
+			In the fourth part of the homework, we extended this to global illumination by allowing rays to bounce multiple times. 
+			This is where things start to look much more realistic, since we can now see indirect lighting and soft 
+			light in shadows. We also added Russian Roulette to randomly stop rays early, which helps reduce computation while still 
+			keeping the results correct on average.
+		</p>
+		<p>
+			In the fifth part of the homework, we implemented adaptive sampling. Instead of using the same number of samples for every pixel, 
+			we checked if a pixel had converged using a confidence interval. If it had, we would stop sampling early. This way, the renderer 
+			would spend more time on noisy areas and less time on smooth areas, which makes the whole process more efficient.
+		</p>
+		<p>
+			One thing we found interesting about homework 3 was how big of a difference importance sampling and BVH acceleration made. 
+			At first, the renderer technically worked, but it was either super noisy or really slow. Once I switched from uniform hemisphere
+			sampling to importance sampling, the images got way cleaner with the same number of samples. And then with BVH, scenes that
+			took forever to render suddenly finished in seconds. It was cool to see how much performance and quality can 
+			improve just by changing how you sample or structure the data, not just by adding more computation.
 		</p>
 
-		<h2>Section I: Bezier Curves and Surfaces</h2>
+		<h2>Part 1: Ray Generation and Scene Intersection</h2>
+
+		<h2>Part 2: Bounding Volume Hierarchy</h2>
+
+		<h2>Part 3: Direct Illumination</h2>
+
+		<h2>Part 4: Global Illumination</h2>
+
+		<h2>Part 5: Adaptive Sampling</h2>
 
 		<h3>Part 1: Bezier curves with 1D de Casteljau subdivision</h3>
 		De Casteljau's algorithm takes a list of control points and a scalar parameter t in [0, 1],
@@ -131,7 +154,7 @@
 			</figcaption>
 		</figure>
 
-		<h3>Part 2: Bezier surfaces with separable 1D de Casteljau</h3>
+		<h3>Part 2: Bounding Volume Hierarchy</h3>
 		De Casteljau's algorithm extends to Bezier surfaces by applying it separably along each parameter axis.
 		Given an n x n grid of control points and two parameters u and v, I first run the full 1D algorithm along each row at parameter u,
 		reducing each row of n points down to a single point. This produces n new points, one per row, which together define a new Bezier curve running in the other direction.
