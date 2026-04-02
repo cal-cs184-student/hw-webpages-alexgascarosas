@@ -262,6 +262,51 @@
 
 		<h2>Part 4: Global Illumination</h2>
 
+		<h3>Indirect lighting implementation</h3>
+		<p>
+			We implemented indirect lighting in at_least_one_bounce_radiance by recursively tracing additional 
+			rays after the first surface intersection. At each hit point, I first computed the direct lighting contribution 
+			using one_bounce_radiance. Then, if the ray depth allowed more bounces, I sampled a new incoming direction from 
+			the BSDF using sample_f, transformed that direction from object space to world space, and spawned a new ray from 
+			the hit point. If this new ray hit another surface, I 
+			recursively called at_least_one_bounce_radiance on that new intersection and weighted the returned radiance by the 
+			BSDF term, the cosine term, and the sample pdf. For the accumulated version, I added the direct and indirect terms 
+			together and for the unaccumulated version I returned only the indirect term. For Russian Roulette, after at least 
+			one indirect bounce, I randomly terminated paths w/ a continuation probability and divided by that probability.
+		</p>
+
+		<figure>
+			<img src="part4imgs/bunny_direct_indirect.png" style="width:100%"/>
+			<figcaption>
+						global (direct and indirect) illumination for /dae/sky/CBbunny.dae
+			</figcaption>
+		</figure>
+
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_direct_indirect.png" width="400px"/>
+				  <figcaption>global (direct and indirect) illumination for /dae/sky/CBbunny.dae</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/dragon_direct_indirect.png" width="400px"/>
+				  <figcaption>global (direct and indirect) illumination for /dae/sky/dragon.dae</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/wall-e_direct_indirect.png" width="400px"/>
+				  <figcaption>global (direct and indirect) illumination for /dae/sky/wall-e.dae</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bench_direct_indirect.png" width="400px"/>
+				  <figcaption>global (direct and indirect) illumination for /dae/sky/bench.dae</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
 		<h2>Part 5: Adaptive Sampling</h2>
 		
 		<h2>(Optional) Homework 3 Extra Credit</h2>
