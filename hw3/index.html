@@ -406,6 +406,98 @@
 			images are more useful for understanding how indirect lighting builds up.
 		</p>
 
+		<h3>Russian Roulette renders</h3>
+		<p>
+			Russian Roulette randomly terminates some paths after the first indirect bounce, which reduces computation. The m=100 render looks close to the 
+			final global illumination result
+		</p>
+		
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_rr_m0.png" width="400px"/>
+				  <figcaption>max_ray_depth set to 0</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_rr_m1.png" width="400px"/>
+				  <figcaption>max_ray_depth set to 1</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_rr_m2.png" width="400px"/>
+				  <figcaption>max_ray_depth set to 2</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_rr_m3.png" width="400px"/>
+				  <figcaption>max_ray_depth set to 3</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_rr_m4.png" width="400px"/>
+				  <figcaption>max_ray_depth set to 4</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_rr_m100.png" width="400px"/>
+				  <figcaption>max_ray_depth set to 5</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<h3>Sample-per-pixel comparison</h3>
+
+		<p>
+			As the sample count increases, the noise decreases significantly. At very low sample counts like 1 or 2, the image 
+			is extremely grainy and soft shadow regions have high variance. By 16 and 64 spp, the overall structure of the scene is 
+			much clearer and the shadows are much smoother. At 1024 spp, the image looks much more stable and close to th final render.
+		</p>
+
+				
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_s1.png" width="400px"/>
+				  <figcaption>/dae/sky/CBbunny.dae with per-pixel rates of 1</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_s2.png" width="400px"/>
+				  <figcaption>/dae/sky/CBbunny.dae with per-pixel rates of 2</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_s4.png" width="400px"/>
+				  <figcaption>/dae/sky/CBbunny.dae with per-pixel rates of 4</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_s8.png" width="400px"/>
+				  <figcaption>/dae/sky/CBbunny.dae with per-pixel rates of 8</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_s16.png" width="400px"/>
+				  <figcaption>/dae/sky/CBbunny.dae with per-pixel rates of 16</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_s64.png" width="400px"/>
+				  <figcaption>/dae/sky/CBbunny.dae with per-pixel rates of 64</figcaption>
+				</td>
+			  </tr>
+			   <tr>
+				<td style="text-align: center;">
+				  <img src="part4imgs/bunny_s1024.png" width="400px"/>
+				  <figcaption>/dae/sky/CBbunny.dae with per-pixel rates 1024</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+
 		<h2>Part 5: Adaptive Sampling</h2>
 		
 		<h2>(Optional) Homework 3 Extra Credit</h2>
